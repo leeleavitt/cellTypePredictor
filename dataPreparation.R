@@ -194,7 +194,7 @@ for( i in 1:length(rdExps)){
     rdCellType <- tmpRD[[ cellTypeName ]][ cellTypes ]
     
     # Add cell_types to the bin dataframe
-    tmpRD$bin['cell_types'] <- 'NA'
+    tmpRD$bin['cell_types'] <- NA
     # Itteratively update the binary data frame to contain the new labels.
     for(i in 1:length(rdCellType)){
         tmpRD$bin[rdCellType[[i]], ] <- i
@@ -202,7 +202,8 @@ for( i in 1:length(rdExps)){
     assign(rdExps[i], tmpRD)
 }
 
-tmpRD <- get(rdExps[i])
+i=1
+tmpRd <- get(rdExps[i])
 names(tmpRD$bin)
 source("./R/imageExtractor.R")
 imageExtractor(rdExps, 20, 'cell_types', 'img2', c(1,2,3) )

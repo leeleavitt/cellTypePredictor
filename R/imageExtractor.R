@@ -1,21 +1,27 @@
 # define the range, label and image
-range <- 20
-label <- 'cy5.bin'
-image <- 'img3'
-channel <- c(1,2,3)
-imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = 'img3', channel = 1){
+# experiments <- rdExps
+# range = 20 
+# label = 'cell_types'
+# image = 'img2'
+# channel = c(1,2,3)
+
+imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = 'img3', channel = 1, na.rm = T){
     #slice is the size of the range plus 1
     slice <- (range * 2) + 1
     # First make our main array to fill stuff in wiht
     mainImageArray <- array(dim = c(0, slice, slice, length(channel)))
-    mainLabelArray <- labels <- matrix(nrow=0, ncol=1)
+    mainLabelArray <-  matrix(nrow=0, ncol=1)
     for( i in 1:length(experiments) ){
-        tmpRd <- get(experiments[i])
+        tmpRd <- get(experiments[i], globalenv())
         
-        print(names(tmpRd$bin))
         # Define the NA's as 0's this is a Bold move
-        naLogic <- is.na(tmpRd$bin[,label])
-        tmpRd$bin[naLogic, label] <- 0
+        if(na.rm){
+            naLogic <- is.na(tmpRd$bin[,label])
+            tmpRd$bin <- tmpRd$bin[!naLogic, ]
+            tmpRd$c.dat <- tmpRd$c.dat[!naLogic, ]
+        }else{
+            tmpRd$bin[naLogic, label] <- 0
+        }
         
         # Gather the center x and y data
         cellXValue <- tmpRd$c.dat$center.x.simplified
@@ -83,12 +89,16 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         '.csv'
     )
 
+    invisible(dir.create(paste0('./trainingData/',label,'/'), FALSE))
     RcppCNPy::npySave(
-        paste0('./expData/', numpyName), 
+        paste0('./trainingData/',label,'/', numpyName), 
         mainImageArrayReshape
     )
     write.csv(
         mainLabelArray, 
-        file = paste0('./expData/', csvName)
+        file = paste0('./trainingData/',label,'/', csvName)
     )
+
+    cat("\nCompleted making the numpy array and labels\n")
+    cat("\nTotal examples: ", dim(mainImageArray)[1],'\n')
 }

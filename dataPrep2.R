@@ -55,26 +55,25 @@ for( i in 1:length(rdExps)){
 # Now wee need to add these cells types to the binary collumn.
 # We will make our lives easier and just call it cell_types
 rdExps <- goodRdExps
+
 for( i in 1:length(rdExps)){
     # Get the experiment
     tmpRD <- get(rdExps[i])
     # Some experiments have spelled cell.types as cell_types, get it right
-    cellTypeName <- grep('^cell[._]types$', names(tmpRD))
+    cellTypeName <- grep('^cell[._]types$', names(tmpRD), value = TRUE)
     
     # Grab only the cell types we are interested in
     rdCellType <- tmpRD[[ cellTypeName ]][ cellTypes ]
     
     # Add cell_types to the bin dataframe
-    tmpRD$bin['cell_types'] <- 'NA'
+    tmpRD$bin[,'cell_types'] <- NA
     # Itteratively update the binary data frame to contain the new labels.
-    for(i in 1:length(rdCellType)){
-        tmpRD$bin[rdCellType[[i]], 'cell_types'] <- i
+    for(j in 1:length(rdCellType)){
+        tmpRD$bin[rdCellType[[j]], 'cell_types'] <- j
     }
     assign(rdExps[i], tmpRD)
 }
 
-tmpRd <- get(rdExps[i])
-names(tmpRD$bin)
 source("./R/imageExtractor.R")
 imageExtractor(rdExps, 20, 'cell_types', 'img2', c(1,2,3) )
 
