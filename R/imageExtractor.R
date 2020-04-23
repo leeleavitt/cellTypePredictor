@@ -12,6 +12,7 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
     for( i in 1:length(experiments) ){
         tmpRd <- get(experiments[i])
         
+        print(names(tmpRd$bin))
         # Define the NA's as 0's this is a Bold move
         naLogic <- is.na(tmpRd$bin[,label])
         tmpRd$bin[naLogic, label] <- 0
