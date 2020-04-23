@@ -38,23 +38,23 @@ for(i in 1:length(rdExps) ){
     }else{print(paste('bad: ', length(correctCt)))}
 }
 
+rdExps <- setdiff(goodRdExps, "RD.190612.38.f.M3.W1.ConROI_Y5yM13L")
+
 # Looking at all images
 for( i in 1:length(rdExps)){    
     rdName <- rdExps[i]
     cat('\n', rdName)
     
-    tmpRd <- get( rdExps[i] )
+    tmpRD <- get( rdExps[i] )
 
-    cat('\nimage2 dim: ', dim(tmpRd$img2) )
-    cat('\nimage3 dim: ', dim(tmpRd$img3) )   
-    cat('\nimage4 dim: ', dim(tmpRd$img4) )
-    cat('\nimage8 dim: ', dim(tmpRd$img8) )
+    cat('\nimage2 dim: ', dim(tmpRD$img2) )
+    cat('\nimage3 dim: ', dim(tmpRD$img3) )   
+    cat('\nimage4 dim: ', dim(tmpRD$img4) )
+    cat('\nimage8 dim: ', dim(tmpRD$img8) )
 }
-
 
 # Now wee need to add these cells types to the binary collumn.
 # We will make our lives easier and just call it cell_types
-rdExps <- goodRdExps
 
 for( i in 1:length(rdExps)){
     # Get the experiment
@@ -75,5 +75,18 @@ for( i in 1:length(rdExps)){
 }
 
 source("./R/imageExtractor.R")
+
+# Image 1 is a total bright feild overlay
+imageExtractor(rdExps, 20, 'cell_types', 'img1', c(1,2,3) )
+# Image 2 is the gfp cy5 and sometime dapi
 imageExtractor(rdExps, 20, 'cell_types', 'img2', c(1,2,3) )
+# Image 3 is ib4 only/red label
+imageExtractor(rdExps, 20, 'cell_types', 'img3', c(1) )
+# Image 5 is the gfp only/green label
+imageExtractor(rdExps, 20, 'cell_types', 'img4', c(2) )
+# Image 8 is the roi and the dapi
+imageExtractor(rdExps, 20, 'cell_types', 'img8', c(1, 2, 3) )
+
+# Traces are more complicated so just use this script
+source("./R/traceExtractor.R")
 
