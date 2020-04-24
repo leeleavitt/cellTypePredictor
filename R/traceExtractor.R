@@ -223,24 +223,24 @@ write.csv(
 
 
 
-# # What would deleting the points do? Would things line up well? From the looks of it YES!
-# plot(
-#     seq(1,length(r3JTraces[[3]][,1])),
-#     r3JTraces[[3]][,1], 
-#     ylim = c( min(r3JTraces[[1]]), max(r3JTraces[[1]]) ),
-#     type='l'
-# )
+# What would deleting the points do? Would things line up well? From the looks of it YES!
+plot(
+    seq(1,length(amckTraces[[3]][,1])),
+    amckTraces[[3]][,1], 
+    ylim = c( min(amckTraces[[1]]), max(amckTraces[[1]]) ),
+    type='l'
+)
 
-# cols <- rgb(0,0,0,.1)
-# lapply(r3JTraces[[4]],
-#     function(x) lines(seq(1,length(x) ), x, col = cols)
-# )
+cols <- rgb(0,0,0,.1)
+lapply(amckTraces[[4]],
+    function(x) lines(seq(1,length(x) ), x, col = cols)
+)
 
-# newCoors <- ceiling(seq(1, 374, length.out = 225))
-# cols <- rgb(1,0,0,.1)
-# lapply(r3JTraces[[1]],
-#     function(x) lines(seq(1,length(x[newCoors]) ), x[newCoors], col = cols)
-# )
+newCoors <- ceiling(seq(1, 374, length.out = 225))
+cols <- rgb(1,0,0,.1)
+lapply(amckTraces[[1]],
+    function(x) lines(seq(1,length(x[newCoors]) ), x[newCoors], col = cols)
+)
 
 
 
