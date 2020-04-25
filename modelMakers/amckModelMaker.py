@@ -63,7 +63,7 @@ model = Sequential([
         dropout = 0.4,
         recurrent_dropout=0.4
         ),
-    tf.keras.layers.Dense(LSTMOUTPUT, activation='sigmoid')
+    tf.keras.layers.Dense(LSTMOUTPUT, activation='softmax')
 ])
 
 model.compile(optimizer='adam',

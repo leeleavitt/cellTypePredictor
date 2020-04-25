@@ -1,9 +1,9 @@
 # define the range, label and image
-# experiments <- rdExps
-# range = 20 
-# label = 'cell_types'
-# image = 'img2'
-# channel = c(1,2,3)
+experiments <- rdExps
+range = 20 
+label = c('gfp.bin', 'cy5.bin')
+image = 'img2'
+channel = c(1,2,3)
 #' Function to gather images of each cell and also collect specified labels of those cells. This outputs a numpy array that can be easily loaded into python. See py/main.py where the numpy array is unpacked into its original dimensions
 #' @param experiments is a character vector of experiment names
 #' @param range this is the image area to create the image of the cell. From the cells center.x and center.y location the range extends up and and down this results in the image being 2*range
@@ -22,10 +22,12 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         
         # Define the NA's as 0's this is a Bold move
         if(na.rm){
-            naLogic <- is.na(tmpRD$bin[,label])
-            tmpRD$bin <- tmpRD$bin[!naLogic, ]
-            tmpRD$c.dat <- tmpRD$c.dat[!naLogic, ]
+            tmpRD$bin <- tmpRD$bin[ ,label, drop = FALSE]
+            tmpRD$bin <- na.omit(tmpRD$bin)
+
+            tmpRD$c.dat <- tmpRD$c.dat[row.names(tmpRD$bin),]
         }else{
+            naLogic <- is.na(tmpRD$bin[,label])
             tmpRD$bin[naLogic, label] <- 0
         }
         
@@ -42,6 +44,12 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         
         # Collect the labels
         subLabelArray <- tmpRD$bin[canView, label, drop = FALSE]
+        subLabelArray <- apply(subLabelArray, 1, paste, collapse='')
+        newLevels <- sort(unique(subLabelArray))
+        print(newLevels)
+        subLabelArray <- as.integer(factor(subLabelArray, levels = newLevels))
+        subLabelArray <- as.data.frame(subLabelArray)
+
         newRowNames <- paste(
             gsub('[.]', '_', experiments[i]), 
             sub('[.]', '_', row.names(subLabelArray)),
@@ -53,13 +61,13 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         # Now we will collect all the images and add it to the array
         subImageArray <- array(
             dim = c(
-                length(tmpRD$bin[ , label][canView]), 
+                dim(tmpRD$c.dat[canView, ])[1], 
                 slice, 
                 slice, 
                 length(channel)
             ) 
         )
-        for( j in 1:length(tmpRD$bin[ , label][canView]) ){
+        for( j in 1:dim(tmpRD$c.dat[canView, ])[1] ){
             xLeft <- cellXValue[canView][j] - range
             xRight <- cellXValue[canView][j] + range
 
@@ -69,6 +77,7 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
             subImageArray[j, , , ] <- tmpRD[[ image ]][yTop:yBottom,xLeft:xRight, channel]
         }
         mainImageArray <- abind::abind(mainImageArray, subImageArray, along = 1)
+        rm(list = experiments[i], envir = globalenv())
     }
 
     mainImageArrayReshape <- mainImageArray
@@ -84,12 +93,12 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         '_',
         length(channel),
         '_',
-        label,
+        paste0(label, collapse = '_'),
         '.npy'
     )
 
     csvName <- paste0(
-        label,
+        paste0(label, collapse = '_'),
         '_',
         dim(mainImageArray)[1],
         '_',
@@ -97,7 +106,7 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         '.csv'
     )
 
-    newDir <- paste0('./trainingData/',label,'_', image,'_', paste(channel, collapse='')) 
+    newDir <- paste0('./trainingData/',paste0(label, collapse = '_'),'_', image,'_', paste(channel, collapse='')) 
     invisible(dir.create(newDir, FALSE))
 
     invisible(RcppCNPy::npySave(

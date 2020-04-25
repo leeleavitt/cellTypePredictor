@@ -55,16 +55,15 @@ model = Sequential([
         kernel_size=4, 
         padding='same', 
         activation='relu', 
-        input_shape = tracesFeature.shape[-2:]),
+        input_shape = tracesFeature.shape[1:]),
     tf.keras.layers.MaxPooling1D(pool_size=2),
     #tf.keras.layers.Flatten(),
     tf.keras.layers.LSTM(
         LSTMINPUT, 
-        input_shape = tracesFeature.shape[-2:], 
         dropout = 0.4,
         recurrent_dropout=0.4
         ),
-    tf.keras.layers.Dense(LSTMOUTPUT, activation='sigmoid')
+    tf.keras.layers.Dense(LSTMOUTPUT, activation='softmax')
 ])
 
 model.compile(optimizer='adam',
@@ -76,10 +75,12 @@ model.summary()
 EVALUATION_INTERVAL = 400
 EPOCHS = 200
 
+es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 history = model.fit(train, epochs = EPOCHS, 
                     steps_per_epoch=EVALUATION_INTERVAL,
                     validation_data = test,
-                    validation_steps=50)
+                    validation_steps=50,
+                    callbacks=[es_callback])
 
 # history = model.fit(x_train, y_train, epochs=25, 
 #                     validation_data=(x_test,y_test ))
@@ -87,4 +88,4 @@ history = model.fit(train, epochs = EPOCHS,
 print("This is the loss vs Accuracy for" + '.')
 py.main.plot_train_history(history, '.'+"_lstm.experiment2")     
 
-model.save('./models/'+'R3J.h5')
+model.save('../models/'+'R3J.h5')
