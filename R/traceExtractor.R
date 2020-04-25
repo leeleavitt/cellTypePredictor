@@ -2,7 +2,7 @@
 ###############################################################
 ###############################################################
 # find all files
-fileLocation <- '../rawData/multiClassData/'
+fileLocation <- './rawData/multiClassData/'
 # Only load from microscope 3
 files <- list.files(fileLocation, '[mM]3')
 
