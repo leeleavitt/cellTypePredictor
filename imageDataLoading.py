@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from py.main import imageLoader
 
-fileName = "./expData/13359_41_41_3_drop.npy"
+fileName = "./trainingData/cy5.bin_img3_1/13227_41_41_1_cy5.bin.npy"
 allImages = imageLoader(fileName)
 
 allImages.shape

@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
+modelName = 'cy5'
 imageFileName = "../trainingData/cy5.bin_img3_1/13227_41_41_1_cy5.bin.npy"
 labelFileName = "../trainingData/cy5.bin_img3_1/cy5.bin_13227_label.csv"
-
 
 #traceFileName = "./trainingData/cell_types_R3J/R3J_7238.csv"
 # Prepare the image for the LSTM
@@ -76,27 +76,7 @@ model.add(Activation('relu'))
 model.add(Dropout(0.4))
 #model.add(BatchNormalization())
 model.add(Dense(2, activation = 'softmax'))
-#model.add(Activation('sigmoid'))
 
-# model = Sequential()
-# model.add(Conv2D(32, kernel_size=(3, 3),
-#                  activation='relu',
-#                  input_shape=imageFeature.shape[1:],
-#                  activity_regularizer=l1(0.0001)))
-# model.add(Conv2D(64, (3, 3), activation='relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.5))
-# model.add(Flatten())
-# model.add(Dense(128*4, activation='relu'))
-# model.add(Dropout(0.5))
-# model.add(Dense(128*2, activation='relu'))
-# model.add(Dropout(0.5))
-# model.add(Dense(256, activation='relu', activity_regularizer=l1(0.0001)))
-# model.add(Dropout(0.5))
-# model.add(Dense(128, activation='relu', activity_regularizer=l1(0.0001)))
-# model.add(Dropout(0.5))
-# model.add(Dense(128, activation='relu', activity_regularizer=l1(0.0001)))
-# model.add(Dense(1))
 model.summary()
 
 model.compile(optimizer='adam',
@@ -118,10 +98,9 @@ history = model.fit(train, epochs = EPOCHS,
 #                     validation_data=(x_test,y_test ))
 
 print("This is the loss vs Accuracy for" + '.')
-py.main.plot_train_history(history, '.'+"_lstm.experiment2")     
+py.main.plot_train_history(history, modelName)     
 
-
-model.save('../models/'+'cy5.h5')
+model.save('../models/' + modelName + '.h5')
 
 #probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
@@ -134,8 +113,8 @@ num_images = num_rows*num_cols
 plt.figure(figsize=(2*2*num_cols, 2*num_rows))
 for i in range(num_images):
   plt.subplot(num_rows, 2*num_cols, 2*i+1)
-  plot_image(i, testImgProbs[i], y_test, x_test)
+  py.main.plot_image(i, testImgProbs[i], y_test, x_test)
   plt.subplot(num_rows, 2*num_cols, 2*i+2)
-  plot_value_array(i, testImgProbs[i], y_test)
+  py.main.plot_value_array(i, testImgProbs[i], y_test)
 plt.tight_layout()
 plt.show()

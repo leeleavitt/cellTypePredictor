@@ -62,16 +62,17 @@ def plot_train_history(history, title):
   axs[1].legend()
 
   fig.show()
-
-  #fig.savefig(title+'.png', bbox_inches='tight')
+  figName = './history/' + title + '.png'
+  print(figName)
+  fig.savefig(figName, bbox_inches='tight')
 
 
 def plot_value_array(i, predictions_array, true_label):
   predictions_array, true_label = predictions_array, true_label[i]
   plt.grid(False)
-  plt.xticks(range(10))
+  plt.xticks(range(len(predictions_array)))
   plt.yticks([])
-  thisplot = plt.bar(range(2), predictions_array, color="#777777")
+  thisplot = plt.bar(range(len(predictions_array)), predictions_array, color="#777777")
   plt.ylim([0, 1])
   predicted_label = np.argmax(predictions_array)
 
@@ -96,3 +97,23 @@ def plot_image(i, predictions_array, true_label, img):
                                 100*np.max(predictions_array),
                                 true_label),
                                 color=color)
+
+def plot_trace(i, predictions_array, true_label, trace):
+  predictions_array, true_label, trace = predictions_array, true_label[i], trace[i]
+  plt.grid(False)
+  plt.xticks([])
+  plt.yticks([])
+
+  plt.plot(np.arange(len(trace)), trace )
+
+  predicted_label = np.argmax(predictions_array)
+  if predicted_label == true_label:
+    color = 'blue'
+  else:
+    color = 'red'
+
+  plt.xlabel("{} {:2.0f}% ({})".format(predicted_label,
+                                100*np.max(predictions_array),
+                                true_label),
+                                color=color)
+
