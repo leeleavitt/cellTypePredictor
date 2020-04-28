@@ -17,6 +17,7 @@ def imageLoader(fileName):
 # 1: traces to calculate features
 # 2: Size of Steps between the times
 def featureMaker(traces, steps = 10):
+    steps = int(steps)
     # First initialize the empty data frame to fill up with the new 
     samples = traces.shape[0]
     timesteps = int(traces.shape[1] / steps)

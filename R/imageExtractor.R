@@ -77,7 +77,6 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
             subImageArray[j, , , ] <- tmpRD[[ image ]][yTop:yBottom,xLeft:xRight, channel]
         }
         mainImageArray <- abind::abind(mainImageArray, subImageArray, along = 1)
-        rm(list = experiments[i], envir = globalenv())
     }
 
     mainImageArrayReshape <- mainImageArray

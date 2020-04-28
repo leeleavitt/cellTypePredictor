@@ -18,7 +18,7 @@ tracesIndex = traces.index
 tracesIndex = np.random.permutation(len(tracesIndex))
 traces = traces.iloc[tracesIndex,]
 tracesNp = np.asarray(traces)
-tracesFeature = featureMaker(tracesNp, 25)
+tracesFeature = featureMaker(tracesNp, 10)
 #tracesFeature = tracesNp[...,np.newaxis]
 
 # Prepare the labels
@@ -30,7 +30,7 @@ labels = np.asarray(labels)
 uniqueLabels = len(set(labels))
 
 #Create Train and Validation Set
-val = int(np.ceil(tracesFeature.shape[0]*.2))
+val = int(np.ceil(tracesFeature.shape[0]*.3))
 trainSize = tracesFeature.shape[0] - val 
 
 x_train  = tracesFeature[:trainSize,...]
@@ -51,18 +51,19 @@ test = tf.data.Dataset.from_tensor_slices((x_test, y_test))
 test = test.batch(BATCH_SIZE).repeat()
 
 model = Sequential()
-model.add(Conv1D(
-        filters=64, 
-        kernel_size=6, 
-        padding='same', 
-        activation='relu', 
-        input_shape = tracesFeature.shape[1:]))
+# model.add(Conv1D(
+#         filters=64, 
+#         kernel_size=6, 
+#         padding='same', 
+#         activation='relu', 
+#         input_shape = tracesFeature.shape[1:]))
 
-model.add(MaxPooling1D(pool_size=2))
+# model.add(MaxPooling1D(pool_size=2))
 model.add(LSTM(
         32,
-        dropout = 0.4,
-        recurrent_dropout=0.4
+        # dropout = 0.4,
+        # recurrent_dropout=0.4
+        input_shape = tracesFeature.shape[1:]
         ))
 model.add(Dense(LSTMOUTPUT, activation='softmax'))
 

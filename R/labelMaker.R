@@ -58,7 +58,7 @@ for( i in 1:length(rdExps)){
 }
 
 # Make the labels. This need to be concactible
-label <- c('gfp.bin', 'cy5.bin')
+label <- c('cell_types')
 range = 20
 mainLabelArray <-  matrix(nrow=0, ncol=1)
 na.rm = TRUE
@@ -92,7 +92,7 @@ for(i in 1:length(rdExps) ){
     subLabelArray <- apply(subLabelArray, 1, paste, collapse='')
     newLevels <- sort(unique(subLabelArray))
     print(newLevels)
-    subLabelArray <- as.integer(factor(subLabelArray, levels = newLevels))
+    subLabelArray <- factor(subLabelArray, levels = newLevels)
     subLabelArray <- as.data.frame(subLabelArray)
 
     # Make new row names

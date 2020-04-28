@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 import numpy as np
 import py.main
 from py.main import featureMaker
@@ -10,16 +11,22 @@ print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('
 
 modelName = 'R3J'
 traceFileName = "../trainingData/cell_types_R3J/R3J_7238.csv"
+#traceFileName2 = "../trainingData/cell_types_AMCK/AMCK_7238.csv"
+
 labelFileName = "../trainingData/cell_types_label.csv"
 
 # Prepare the traces for the LSTM
 traces = pd.read_csv(traceFileName, index_col=0)
-tracesIndex = traces.index
-tracesIndex = np.random.permutation(len(tracesIndex))
-traces = traces.iloc[tracesIndex,]
-tracesNp = np.asarray(traces)
-tracesFeature = featureMaker(tracesNp, 25)
-tracesFeatures = tracesNp
+traces = np.asarray(traces)
+
+tracesIndex = traces.shape[0]
+tracesIndex = np.random.permutation(range(tracesIndex))
+tracesNp = traces[tracesIndex,...]
+
+tracesFeature = featureMaker(tracesNp, 10)
+print("Shape of feature is :")
+print(tracesFeature.shape)
+#tracesFeature = tracesNp[..., np.newaxis]
 
 # Prepare the labels
 labels = pd.read_csv(labelFileName, index_col=0)
@@ -50,43 +57,36 @@ train = train.shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
 test = tf.data.Dataset.from_tensor_slices((x_test, y_test))
 test = test.batch(BATCH_SIZE).repeat()
 
-# model = Sequential([
-#     tf.keras.layers.Conv1D(
-#         filters=64, 
-#         kernel_size=4, 
-#         padding='same', 
-#         activation='relu', 
-#         input_shape = tracesFeature.shape[1:]),
-#     tf.keras.layers.MaxPooling1D(pool_size=2),
-#     #tf.keras.layers.Flatten(),
-#     tf.keras.layers.LSTM(
-#         LSTMINPUT, 
-#         dropout = 0.4,
-#         recurrent_dropout=0.4
-#         ),
-#     tf.keras.layers.Dense(LSTMOUTPUT, activation='softmax')
-# ])
-
 model = Sequential()
-model.add(Conv1D(
-        filters=64, 
-        kernel_size=6, 
-        padding='same', 
-        activation='relu', 
-        input_shape = tracesFeature.shape[1:]))
+model.add(tf.keras.layers.Conv1D(
+    filters=10, 
+    kernel_size=5, 
+    padding='same', 
+    activation='relu', 
+    input_shape = tracesFeature.shape[1:]
+))
+model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
 
-model.add(MaxPooling1D(pool_size=2))
-model.add(LSTM(
-        32,
-        dropout = 0.4,
-        recurrent_dropout=0.4
-        input_shape = tracesFeature.shape[1:]
-        ))
-model.add(Dense(LSTMOUTPUT, activation='softmax'))
+model.add(tf.keras.layers.Conv1D(
+    filters=36, 
+    kernel_size=3, 
+    padding='same', 
+    activation='relu', 
+))
+model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
+
+model.add(tf.keras.layers.LSTM( 
+    LSTMOUTPUT, 
+    dropout = 0.2,
+    recurrent_dropout=0.2,
+))
+model.add(tf.keras.layers.Dense(LSTMOUTPUT, activation='softmax'))
+
 
 model.compile(optimizer='adam',
             loss='sparse_categorical_crossentropy',
             metrics=['acc'])
+
 
 model.summary()
 
@@ -107,3 +107,25 @@ print("This is the loss vs Accuracy for" + '.')
 py.main.plot_train_history(history, modelName)     
 
 model.save('../models/'+modelName+'.h5')
+
+
+import importlib
+import matplotlib.pyplot as plt
+importlib.reload(py.main)
+
+num_rows = 30
+num_cols = 3
+num_images = num_rows*num_cols
+testTraceProbs = model.predict(x_test)
+traceToView = traces[trainSize:,...]
+
+np.arange(len(traces)).shape
+
+plt.figure(figsize=(2*2*num_cols, 2*num_rows))
+for i in range(num_images):
+  plt.subplot(num_rows, 2*num_cols, 2*i+1)
+  py.main.plot_trace(i, testTraceProbs[i], y_test, traceToView)
+  plt.subplot(num_rows, 2*num_cols, 2*i+2)
+  py.main.plot_value_array(i, testTraceProbs[i], y_test)
+plt.tight_layout()
+plt.show()

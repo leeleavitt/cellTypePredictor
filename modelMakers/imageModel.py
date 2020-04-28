@@ -13,7 +13,8 @@ print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('
 
 modelName = 'label'
 imageFileName1 = "../trainingData/cell_types_img1_123/7238_41_41_3_cell_types.npy"
-labelFileName1 = "../trainingData/cell_types_img1_123/cell_types_7238_label.csv"
+labelFileName1 = '../trainingData/cell_types_label.csv'
+
 
 #imageFileName2 = "../trainingData/binaryData_gfp.bin_cy5.bin_img2_123/8127_41_41_3_gfp.bin_cy5.bin.npy"
 #labelFileName2 = "../trainingData/binaryData_gfp.bin_cy5.bin_img2_123/gfp.bin_cy5.bin_8127_label.csv"

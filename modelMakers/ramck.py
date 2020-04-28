@@ -31,7 +31,7 @@ tracesNp = traces[tracesIndex,...]
 tracesFeature = featureMaker(tracesNp, 10)
 print("Shape of feature is :")
 print(tracesFeature.shape)
-tracesFeature = tracesNp[..., np.newaxis]
+#tracesFeature = tracesNp[..., np.newaxis]
 
 # Prepare the labels
 labels = pd.read_csv(labelFileName, index_col=0)
@@ -82,25 +82,27 @@ model.add(tf.keras.layers.MaxPooling1D(pool_size=2))
 
 model.add(tf.keras.layers.LSTM( 
     LSTMOUTPUT, 
-    # dropout = 0.1,
-    # recurrent_dropout=0.1,
+    dropout = 0.2,
+    recurrent_dropout=0.2,
 ))
 model.add(tf.keras.layers.Dense(LSTMOUTPUT, activation='softmax'))
+
 
 model.compile(optimizer='adam',
             loss='sparse_categorical_crossentropy',
             metrics=['acc'])
+
 
 model.summary()
 
 EVALUATION_INTERVAL = 400
 EPOCHS = 200
 
-es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 history = model.fit(train, epochs = EPOCHS, 
                     steps_per_epoch=EVALUATION_INTERVAL,
                     validation_data = test,
-                    validation_steps=50,
+                   validation_steps=100,
                     callbacks=[es_callback])
 
 # history = model.fit(x_train, y_train, epochs=25, 
