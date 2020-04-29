@@ -135,8 +135,10 @@ I'd also like to create an interactive visualization to look at each individual 
 
 **Figure 12:** This shows a single neuron cell class prediction to each of the four models (amck, image, r3j, ramck). The y axis represents the probability score from each model assigned the the neuron.
 
-Additionally a set of cell classes that struggled a definition were the L3, L4, L5, L6. The dominate model for most of these was the image. I hope to incoperate a better image for the next round. For example, I'd like to use the image which has the roi overlayed on top of the image.
+Additionally a set of cell classes that struggled a definition were the L3, L4, L5, L6. The dominate model for most of these was the image. I hope to incoporate a better image for the next round. For example, I'd like to use the image which has the roi overlayed on top of the image. I've guessing that this would have better structure for the convolution neural networks to work off of. The image i am going to add for the next series of training is represented in **figure 13**.
 
+![](./misc/bf.gfp.tritc.end.lab.png)
+**Figure 13:** This is the image which contains the ROI information. I believe the convolution neural net can hone in on the shape of the neuron better to define the size of the cell.
 
 
 
