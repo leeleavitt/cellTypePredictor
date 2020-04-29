@@ -174,6 +174,7 @@ for( i in 1:dim(corrClass)[1]){
     binClassComp[i, 3] <- names(multiClassModels)[modelMax]
 }
 
+# Bin 
 binClassCompTable <- table(binClassComp[1] == binClassComp[2])
 binClassCompSuccess <-  100 * (binClassCompTable['TRUE']/sum(binClassCompTable) )
 cat('Binary guided success is\n')
@@ -184,10 +185,13 @@ par(mfrow = c(1, 2))
 
 barplot(
     summary(as.factor(allClassComp$topModel)),
-    main = 'All Class Success')
+    main = 'All Class Success', 
+    border = NA
+)
 barplot(
     summary(as.factor(binClassComp$topModel)),
-    main = 'Bin Class Success'
+    main = 'Bin Class Success',
+    border = NA
 )
 
 ###################################################################
@@ -256,33 +260,33 @@ text(
 
 
 
-# # Visualize the label scores
+# Visualize the label scores
 
-# dev.new(width = 12, height =5)
-# cols <- RColorBrewer::brewer.pal(n = length(multiClassModels), 'Dark2')
-# bpDims <- barplot(
-#     as.matrix(modelFrame), 
-#     beside = T, 
-#     col = cols,
-#     ylim = c(0,1),
-#     xaxt = 'n',
-#     main = row.names(corrClass)[i],
-#     border = NA
-# )
+dev.new(width = 12, height =5)
+cols <- RColorBrewer::brewer.pal(n = length(multiClassModels), 'Dark2')
+bpDims <- barplot(
+    as.matrix(modelFrame), 
+    beside = T, 
+    col = cols,
+    ylim = c(0,1),
+    xaxt = 'n',
+    main = row.names(corrClass)[i],
+    border = NA
+)
 
-# legend("top",
-#     legend = names(multiClassModels),
-#     fill = cols,
-#     horiz = T,
-#     bty='n',
-#     border = NA)
+legend("top",
+    legend = names(multiClassModels),
+    fill = cols,
+    horiz = T,
+    bty='n',
+    border = NA)
 
-# par(xpd=T)
-# text(
-#     apply(bpDims, 2, mean),
-#     par('usr')[3] -yinch(.2),
-#     classNames,
-#     col = ifelse(corrClass[i,] == seq(1,16), 'red', 'black'),
-#     font = ifelse(corrClass[i,] == seq(1,16), 2, 1),
-#     cex = ifelse(corrClass[i,] == seq(1,16), 1.5, 1)
-# )
+par(xpd=T)
+text(
+    apply(bpDims, 2, mean),
+    par('usr')[3] -yinch(.2),
+    classNames,
+    col = ifelse(corrClass[i,] == seq(1,16), 'red', 'black'),
+    font = ifelse(corrClass[i,] == seq(1,16), 2, 1),
+    cex = ifelse(corrClass[i,] == seq(1,16), 1.5, 1)
+)
