@@ -200,18 +200,29 @@ mostCommonLabels <- summary(as.factor(binClassComp$correctLabel))
 labs <- as.integer(names(mostCommonLabels))
 
 misClassInfo <- data.frame(matrix(nrow = length(labs), ncol = 3))
-
 misClassInfo[,1] <- mostCommonLabels
 
+classMisClasses <- list()
 for(i in 1:length(labs)){
     # Identify the number of correctly identified neurons
     labClassSel <- binClassComp$correctLabel == labs[i]
     selectedNeurons <- binClassComp[labClassSel,]
     
-    cat('\n', classNames[i], '\n')
+    # What other classes was this class assigned to? and why?
+    newName <- paste0(classNames[i], ' : ', dim(selectedNeurons)[1])
     classMisClass <- sort(summary(as.factor(selectedNeurons$predictedLabel)), TRUE)[1:3]
-    names(classMisClass) <- classNames[as.integer(names(classMisClass))]
-    print(classMisClass)
+    classMisClassNames <- as.integer(names(classMisClass))
+    names(classMisClass) <- classNames[classMisClassNames]
+    classMisClasses[[ newName ]] <- list()
+    classMisClasses[[ newName ]][[ 'misClassClasses' ]] <- classMisClass
+    
+    barLabels <- c()
+    for(j in 1:length(classMisClassNames)){
+        logic <- selectedNeurons$predictedLabel == classMisClassNames[j]
+        toAdd <- sort(summary(as.factor(selectedNeurons[logic, 'topModel'])), TRUE)[1]
+        barLabels[j] <- paste0(names(toAdd), " : ", toAdd)
+    }
+    classMisClasses[[ newName ]][[ 'barLabels' ]] <- barLabels
 
     correct <- table(selectedNeurons$correctLabel == selectedNeurons$predictedLabel)['TRUE']
     misClassInfo[i,2] <- correct
@@ -221,8 +232,9 @@ for(i in 1:length(labs)){
     misClassInfo[i,3] <- paste0(modelTopName, "\n", modelTopNum, " / ", misClassInfo[i,1])
 }
 
+################################################################
+## Visualize the class misclassification rate
 misClassInfo[is.na(misClassInfo)] <- 0 
-
 bpDims <- barplot(
     misClassInfo[,2] / misClassInfo[,1] * 100,
     ylim = c(0, 100),
@@ -257,11 +269,37 @@ text(
     srt = 90
 )
 
+################################################################
+# Visual misclassified to 
+dev.new(width = 10, height = 10)
+mfrowDim <- ceiling(sqrt(length(classMisClasses)))
+par(mfrow = c(mfrowDim, mfrowDim))
+
+for(i in 1:length(classMisClasses)){
+    mainName <- names(classMisClasses[i])
+    col <- RColorBrewer::brewer.pal(100, 'Accent')[1:3]
+    bpDims <- barplot(
+        classMisClasses[[i]][[1]],
+        main = mainName,
+        col = col,
+        border=NA
+    )
+
+    # Add the model misclass
+    text(
+        apply(bpDims, 1, 'mean'),
+        par('usr')[3]+yinch(.1),
+        classMisClasses[[i]][[2]],
+        srt=90,
+        font=2,
+        cex = 1.3, 
+        adj = 0
+    )
+}
 
 
-
+################################################################
 # Visualize the label scores
-
 dev.new(width = 12, height =5)
 cols <- RColorBrewer::brewer.pal(n = length(multiClassModels), 'Dark2')
 bpDims <- barplot(

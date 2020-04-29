@@ -127,6 +127,12 @@ Diving into the percent success classification can be observed in **Figure 11**.
 
 **Figure 11:** Each class % correct classification is shown in the the figure. Within each bar the dominate model and the number of cells predicted to be that label out of all cells in that class. Above each bar is the percent of the cell class predicted correctly.
 
+To further explore the misclassifications, and the reason for these misclassification we explore what the top three classes the cell class was assigned to during modeling. Within each bar we list the dominant model that defined that classification.
+
+![](./misc/withinClassMisClassification.png)
+
+**Figure 12** For each cell class we observed what the top classifications the models assigned that cell class to. Within each bar is the dominant model responsible for assigning the cell to the label below that bar. 
+
 
 ## More Time
 Continuing this project I would spend more time on designing models that helped to improved low performing cell classes in the model prediction. For example R11 and R12, both struggled to find success in any models. I'd also like to obtain some cleaner data. Some datasets contain noisy classification, which might be a reason why it is struggling to classify some cell classes. I am interested in attempting to use generative adversarial networks (GAN's) to boost performance of the models. 
