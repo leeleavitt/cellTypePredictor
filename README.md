@@ -1,3 +1,5 @@
+# cellTypePredictor
+
 ## Project and main ideas
 Cell type classification is used in drug target discovery as well as drug discovery, but identifying cell types can prove to be difficult and time consuming. The way we define cell types is by using a combination of pharmacology, structural identification, to define these cell types. Here in our assay we define the cells mainly using two different assays. This is most easily explained in a [video](https://youtu.be/Ff1E0l2Zlhw?t=342), and for a more in depth discussion on the entire ramifications of this assay watch the whole video. The neurons in our assay are observed in two ways, 
 1.	Dynamic depiction:  This is captured by filling the neurons with Fura2, a dye indicative of calcium. Calcium indicates when specific channels (targets of pharmacological intervention) open up. An image is captured every two seconds during these experiments.
