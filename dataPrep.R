@@ -77,16 +77,16 @@ for( i in 1:length(rdExps)){
 source("./R/imageExtractor.R")
 imageExtractor(rdExps, 20, 'cell_types', 'img3', c(2) )
 
-# Image 1 is a total bright feild overlay
-imageExtractor(rdExps, 20, 'cell_types', 'img1', c(1,2,3) )
-# Image 2 is the gfp cy5 and sometime dapi
-imageExtractor(rdExps, 20, 'cell_types', 'img2', c(1,2,3) )
-# Image 3 is ib4 only/red label
-imageExtractor(rdExps, 20, 'cell_types', 'img3', c(2) )
-# Image 5 is the gfp only/green label
-imageExtractor(rdExps, 20, 'cell_types', 'img4', c(2) )
+# # Image 1 is a total bright feild overlay
+# imageExtractor(rdExps, 20, 'cell_types', 'img1', c(1,2,3) )
+# # Image 2 is the gfp cy5 and sometime dapi
+# imageExtractor(rdExps, 20, 'cell_types', 'img2', c(1,2,3) )
+# # Image 3 is ib4 only/red label
+# imageExtractor(rdExps, 20, 'cell_types', 'img3', c(2) )
+# # Image 5 is the gfp only/green label
+# imageExtractor(rdExps, 20, 'cell_types', 'img4', c(2) )
 # Image 8 is the roi and the dapi
-imageExtractor(rdExps, 20, 'cell_types', 'img8', c(1, 2, 3) )
+imageExtractor(rdExps, 20, 'drop', 'img8', c(1, 2, 3) )
 
 # Traces are more complicated so just use this script
 source("./R/traceExtractor.R")

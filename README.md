@@ -63,7 +63,7 @@ All models were fairly weak for defining the cell types, and the the RAMCK perfo
 
 **Figure 6:** The blue box represent the R3J response types, the red box represent the AMCK response types. Additionally the images on the right present the structural, characteristics of these neurons collected during these experiments.
 
-![](./modelMakers/history/r3j.png)
+![](./modelMakers/history/R3J.png)
 
 **Figure 7:** R3J model loss and accuracy. 
 

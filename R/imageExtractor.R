@@ -1,5 +1,6 @@
 # define the range, label and image
 experiments <- rdExps
+
 range = 20 
 label = c('gfp.bin', 'cy5.bin')
 image = 'img2'
@@ -47,7 +48,7 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
         subLabelArray <- apply(subLabelArray, 1, paste, collapse='')
         newLevels <- sort(unique(subLabelArray))
         print(newLevels)
-        subLabelArray <- as.integer(factor(subLabelArray, levels = newLevels))
+        subLabelArray <- factor(subLabelArray, levels = newLevels)
         subLabelArray <- as.data.frame(subLabelArray)
 
         newRowNames <- paste(
