@@ -6,6 +6,8 @@ fileLocation <- './rawData/multiClassData/'
 # Only load from microscope 3
 files <- list.files(fileLocation, '[mM]3')
 
+files <- files
+
 # load in all files, thank god for all my ram
 if(length(ls(pattern = 'RD.')) < 1){
     for(i in files){
@@ -37,6 +39,7 @@ for(i in 1:length(rdExps) ){
         goodRdExps <- c(goodRdExps, rdExps[i])
     }else{print(paste('bad: ', length(correctCt)))}
 }
+
 
 rdExps <- setdiff(goodRdExps, "RD.190612.38.f.M3.W1.ConROI_Y5yM13L")
 

@@ -55,11 +55,14 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
             subLabelArray <- tmpRD$bin[canView, label, drop = FALSE]
         }
 
-        newRowNames <- paste(
-            gsub('[.]', '_', experiments[i]), 
-            sub('[.]', '_', row.names(subLabelArray)),
-            sep='__'
-        )
+        # newRowNames <- paste(
+        #     gsub('[.]', '_', experiments[i]), 
+        #     sub('[.]', '_', row.names(subLabelArray)),
+        #     sep='__'
+        # )
+
+        newRowNames <- paste0(experiments[i],'_',row.names(subLabelArray))
+        
         row.names(subLabelArray) <- newRowNames
         mainLabelArray <- rbind(mainLabelArray, subLabelArray)
 

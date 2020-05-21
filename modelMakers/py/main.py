@@ -52,6 +52,7 @@ def plot_train_history(history, title):
   axs[0].plot(epochs, loss, 'b', label='Training loss')
   axs[0].plot(epochs, val_loss, 'r', label='Validation loss')
   axs[0].set_title('Loss')
+  axs[0].xaxis.set_visible(False)
   axs[0].legend()
 
   trainAcc = history.history['acc']

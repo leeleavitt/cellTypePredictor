@@ -8,6 +8,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D
 from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.regularizers import l1
+from tensorflow.keras.utils import plot_model
 import matplotlib.pyplot as plt
 from skimage import transform
 import random
@@ -92,10 +93,24 @@ randRot = random.uniform(-20,20)
 for i in range(xTrainOnes.shape[0]):
     xTrainOnesRot4[i] = transform.rotate(xTrainOnes[i], randRot)
 
-plt.imshow(xTrainOnes[50])
-plt.imshow(xTrainOnesFliplr[50])
-plt.imshow(xTrainOnesFlipud[50])
-plt.imshow(xTrainOnesRot[50])
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2)
+fig.suptitle("Image Augmentations")
+
+ax1.imshow(np.squeeze(xTrainOnes[50]))
+ax1.set_title("Original")
+ax1.axis('off')
+
+ax2.imshow(np.squeeze(xTrainOnesFliplr[50]))
+ax2.set_title('Horizontal Flip')
+ax2.axis('off')
+
+ax3.imshow(np.squeeze(xTrainOnesFlipud[50]))
+ax3.set_title('Vertical Flip')
+ax3.axis('off')
+
+ax4.imshow(np.squeeze(xTrainOnesRot1[50]))
+ax4.set_title('Rotate on axis')
+ax4.axis('off')
 
 moreXtrainOnes = np.concatenate((
     xTrainOnes, 
