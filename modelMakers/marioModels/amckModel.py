@@ -7,10 +7,13 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Conv1D, MaxPooling1D, Flatten
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
-modelName = ['aitc', 'menth', 'caps', 'k40']
-traceFileName = ["../../trainingData/cellTypeData/aitc/traces.csv", "../../trainingData/cellTypeData/menth/traces.csv", "../../trainingData/cellTypeData/caps/traces.csv", "../../trainingData/cellTypeData/k40/traces.csv"]
-labelFileName = ["../../trainingData/cellTypeData/aitc/labels.csv", "../../trainingData/cellTypeData/menth/labels.csv", "../../trainingData/cellTypeData/caps/labels.csv", "../../trainingData/cellTypeData/k40/labels.csv"]
+# modelName = ['aitc', 'menth', 'caps', 'k40']
+# traceFileName = ["../../trainingData/cellTypeData/r3j/traces.csv"]
+# labelFileName = ["../../trainingData/cellTypeData/r3j/labels.csv"]
 
+modelName = ['r3j']
+traceFileName = ["../../trainingData/cellTypeData/r3j/traces.csv"]
+labelFileName = ["../../trainingData/cellTypeData/r3j/labels.csv"]
 # Prepare the traces for the LSTM
 
 for i in range(len(modelName)):
