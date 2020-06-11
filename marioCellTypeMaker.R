@@ -23,7 +23,7 @@ rdExps <- ls(pattern ='RD[.]')
 goodExps <- cellTypeChecker(rdExps)
 
 # This how we add the cell types to the bin dataFrame
-cellTypeBinner(goodExps)
+multiCellTypeBinner(goodExps)
 
 # Now we need to make training datasets with cell types are labels for
 # all is saved in './trainingData/cellTypeData'

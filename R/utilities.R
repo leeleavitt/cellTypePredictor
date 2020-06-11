@@ -27,7 +27,7 @@ cellTypeChecker <- function(rdExps){
 }
 
 # function to add cell types to the bin dataframe.
-cellTypeBinner <- function(rdExps){
+multiCellTypeBinner <- function(rdExps){
     for( i in 1:length(rdExps)){
         # Get the experiment
         tmpRD <- get(rdExps[i])
@@ -53,10 +53,10 @@ cellTypeBinner <- function(rdExps){
 }
 
 # Function to make trace labeled Data
-rdExps = goodExps
-pulseToFind = 'r3j'
-label = 'cell_types'
-folderName = './trainingData/cellTypeData/r3j/'
+# rdExps = goodExps
+# pulseToFind = 'r3j'
+# label = 'cell_types'
+# folderName = './trainingData/cellTypeData/r3j/'
 traceLabeledDataMaker <- function(rdExps, pulseToFind, label, folderName){
 
     traceCollection <- matrix(nrow = 0, ncol = 120)

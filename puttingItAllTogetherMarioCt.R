@@ -50,7 +50,7 @@ for( i in 1:length(labData) ){
 
 modelNames <- c('r3J','aitc', 'menth', 'caps', 'k40', 'gfp', 'ib4', 'image')
 predictedClasses <- list()
-
+INV
 # AMCK model
 for(i in 1:5){
     model <- invisible(keras::load_model_hdf5(models[i]))
@@ -116,16 +116,23 @@ for( i in 1:dim(labelSet)[1]){
 }
 
 allClassCompTable <- table(allClassComp[1] == allClassComp[2])
-allClassCompSuccess <-  100 * (allClassCompTable['TRUE']/sum(allClassCompTable) )
+allClassCompSuccess <-  round(100 * (allClassCompTable['TRUE']/sum(allClassCompTable) ), digits=2)
 cat('\nAll class success is\n')
-cat(round(allClassCompSuccess, digits=2), " %\n")
+cat(allClassCompSuccess, " %\n")
 
-dev.new(width = 4, height = 5)
+dev.new(width = 7, height = 4)
 
-barplot(
+bpDim <- barplot(
     summary(as.factor(allClassComp$topModel)),
-    main = 'All Class Success', 
-    border = NA
+    main = paste0('All Class Success: ',allClassCompSuccess, '%\nTotal examples ', dim(allClassComp)[1]) , 
+    border = NA, 
+    ylim= c(0, max(summary(as.factor(allClassComp$topModel)))*1.4 )
+)
+
+text(bpDim,
+    summary(as.factor(allClassComp$topModel)) + yinch(.2),
+    summary(as.factor(allClassComp$topModel)),
+    srt=90
 )
 
 ###################################################################

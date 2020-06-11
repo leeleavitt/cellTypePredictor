@@ -1,0 +1,5 @@
+tmpRD <- get(load("./experimentTesting/RD.200415.43.m.M3.W1.Iq9a.Rdata"))
+RD.200415.43.m.M3.W1.Iq9a <- imageProbMaker(RD.200415.43.m.M3.W1.Iq9a)
+RD.200415.43.m.M3.W1.Iq9a <- traceProbMaker(RD.200415.43.m.M3.W1.Iq9a)
+RD.200415.43.m.M3.W1.Iq9a <- uncertaintyMaker(RD.200415.43.m.M3.W1.Iq9a)
+saveRD(RD.200415.43.m.M3.W1.Iq9a)

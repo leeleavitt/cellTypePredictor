@@ -1,10 +1,10 @@
 # define the range, label and image
-experiments <- rdExps
-range = 20 
-label = c('cy5.bin')
-image = 'img2'
-channel = c(1,2,3)
-na.rm = T
+# experiments <- rdExps
+# range = 20 
+# label = c('cy5.bin')
+# image = 'img2'
+# channel = c(1,2,3)
+# na.rm = T
 #' Function to gather images of each cell and also collect specified labels of those cells. This outputs a numpy array that can be easily loaded into python. See py/main.py where the numpy array is unpacked into its original dimensions
 #' @param experiments is a character vector of experiment names
 #' @param range this is the image area to create the image of the cell. From the cells center.x and center.y location the range extends up and and down this results in the image being 2*range
