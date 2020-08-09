@@ -73,5 +73,5 @@ cat("\nYou have a total of: ", dim(allLabels)[1], "labeled data points")
 cat("\nThe break down of the labels are\n")
 print(summary(as.factor(allLabels$labels)))
 
-write.csv(allPulses, file = paste0(mainDir,"features.csv"))
+write.csv(allPulses, file = paste0(mainDir, "features.csv"))
 write.csv(allLabels, file = paste0(mainDir, "labels.csv"))
