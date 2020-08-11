@@ -8,16 +8,10 @@ from tensorflow.keras.layers import LSTM, Dense, Conv1D, MaxPooling1D, Flatten
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
 featureWindows = 6
-# modelName = ['aitc', 'menth', 'caps', 'k40']
-# traceFileName = ["../../trainingData/cellTypeData/r3j/traces.csv"]
-# labelFileName = ["../../trainingData/cellTypeData/r3j/labels.csv"]
 
-modelName = ['lung']
+modelName = ['VRC']
 traceFileName = ["./features.csv"]
-#traceFileName = ["../../trainingData/cellTypeData/r3j/traces.csv"]
 labelFileName = ["./labels.csv"]
-#labelFileName = ["../../trainingData/cellTypeData/r3j/labels.csv"]
-# Prepare the traces for the LSTM
 
 for i in range(len(modelName)):
         traces = pd.read_csv(traceFileName[i], index_col=0)
