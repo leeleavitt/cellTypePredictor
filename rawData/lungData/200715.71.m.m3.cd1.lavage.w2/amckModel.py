@@ -1,12 +1,14 @@
 import pandas as pd
 import numpy as np
 from py.main import featureMaker
+from python_pharmer import featureMaker2
 import py
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Conv1D, MaxPooling1D, Flatten
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
+featureWindows = 6
 # modelName = ['aitc', 'menth', 'caps', 'k40']
 # traceFileName = ["../../trainingData/cellTypeData/r3j/traces.csv"]
 # labelFileName = ["../../trainingData/cellTypeData/r3j/labels.csv"]
@@ -24,7 +26,7 @@ for i in range(len(modelName)):
         tracesIndex = np.random.permutation(len(tracesIndex))
         traces = traces.iloc[tracesIndex,]
         tracesNp = np.asarray(traces)
-        tracesFeature = featureMaker(tracesNp, 20)
+        tracesFeature = featureMaker2(tracesNp, featureWindows)
         #tracesFeature = tracesNp[...,np.newaxis]
 
         # Prepare the labels
@@ -73,7 +75,7 @@ for i in range(len(modelName)):
 
         EVALUATION_INTERVAL = 200
         EPOCHS = 100
-        es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+        es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 
         history = model.fit(train, epochs = EPOCHS, 
                         steps_per_epoch=EVALUATION_INTERVAL,
