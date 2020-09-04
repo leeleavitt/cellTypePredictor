@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+import numpy as nps
 from python_pharmer import featureMaker2
 import py.main
 import tensorflow as tf
@@ -7,7 +7,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Conv1D, MaxPooling1D, Flatten
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
-featureWindows = 6
+featureWindows = 24
 
 modelName = ['VRC']
 traceFileName = ["./features.csv"]
