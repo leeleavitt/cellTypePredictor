@@ -173,7 +173,7 @@ write.csv(totalLabelData, "labels.csv")
 #' @param wins square root of the number of traces to observe if plotit = t
 #' @param plotit logical, if true then wins^2 will be plotted to allow you to observe this
 
-responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 1, augSamps = 100, degree = 20, sdFactor = 1.8, coefs = 2:8, wins = 7, plotit = F){
+responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 1, augSamps = 100, degree = 20, sdFactor = 1.8, coefs = 2:8, wins = 7, parallel = T, plotit = F, saveIt = T){
 
     numCores <- parallel::detectCores()
     doParallel::registerDoParallel(numCores)
@@ -185,9 +185,8 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
     windowStarts <- tapply(tmpRD$w.dat$Time, as.factor(tmpRD$w.dat$wr1), min)
     windowStarts <- windowStarts[levs]
 
-    #augmentedFeatures <- data.frame()
-    augmentedFeatures <- foreach(m = 1:length(levs), .combine = rbind, .packages="foreach") %do% {
-    #for(m in 1:length(levs)){
+    #augmentedFeatures <- foreach(m = 1:length(levs), .combine = rbind, .packages="foreach") %do% {
+    for(m in 1:length(levs)){
         pulse <- levs[m]
         cat("\nPulse", m, " of", length(levs), ": ", pulse, "\n")
         
@@ -200,27 +199,27 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
         
         pulseLogic <-  tmpRD$w.dat$Time > winStart & 
                         tmpRD$w.dat$Time < winEnd
-
-        pulseLogic <- tmpRD$w.dat[,"wr1"] == pulse
+        
+        pulseTime <- tmpRD[['blc']][pulseLogic, "Time"]
+        
+        # This creates the specific array to output.
+        timeSteps <-  windowSize * (60/1) * (1/2)
+        targ <- data.frame(
+            pulseTime = seq(
+                min(pulseTime), 
+                max(pulseTime), 
+                length.out = timeSteps
+            )
+        )
 
         # For each cell fit the trace to a specific polynomial
-        # Collect all the coefficients
+        # Collect all the coefficients from all input cells
+        # perform the modeling, and save the coefficients
         coefList = list()
-        pulseTime <- tmpRD[['blc']][pulseLogic, "Time"]
-        #for(i in 1:length(cells)){
-        coefList <- foreach(i = 1:length(cells)) %do% {
+        for(i in 1:length(cells)){
+        #coefList <- foreach(i = 1:length(cells)) %do% {
             cell = cells[i]
             cellPulse <- tmpRD[['blc']][pulseLogic, cell]
-
-            timeSteps <-  windowSize * (60/1) * (1/2)
-            targ <- data.frame(
-                pulseTime = seq(
-                    min(pulseTime), 
-                    max(pulseTime), 
-                    length.out = timeSteps
-                )
-            )
-
             polyModel <- lm(cellPulse ~ poly(pulseTime, degree))
             coefList[[cell]] <- polyModel$coefficients
         }
@@ -231,99 +230,150 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
         # the sdfactor, a factor which multiplies the standard deviation of the 
         # coefficient spread of that specific coefficient
         # and which coefficients are randomized.
-        if(plotit == T){par(mfrow = c(wins, wins))}
+        if(plotit == T){
+            dev.new(width = 15, height  = 15)
+            par(mfrow = c(wins, wins))
 
-        #For each cell create a random model output the specifed number of augsamps requested
-        #augmentedFeaturesToAdd <- 
-        #newFeatures <- data.frame()
-        #colnames(newFeatures) <- seq(1, timeSteps)
-        #newFeatures <- data.frame()
-        newFeatures1 <- foreach(i = 1:length(cells), .combine = rbind, .packages="foreach") %dopar% { 
-        #for(i in 1:length(cells)){
-            # if(i%%50 == 0){
-            #     cat("Currently on cell ", i, " of ", length(cells), " cells\n")
-            # }
-            polyModel <- lm(tmpRD[['blc']][pulseLogic, cells[i]] ~ poly(pulseTime, degree))
-            origCoef <- polyModel$coefficients
-            
-            if(plotit == T & i < wins^2){
-                par(mar=c(0,0,0,0), bg = "gray70", xaxt = 'n', yaxt = 'n')
-                plot(
-                    pulseTime, 
-                    tmpRD[['blc']][pulseLogic, cells[i]], 
-                    pch=16, 
-                    cex=1.2, 
-                    xlab="time", 
-                    ylab="Response", 
-                    ylim = c(-0.5,1.3), 
-                    main = pulse, 
-                    col= "black",
-                    type = 'l',
-                    lwd = 2)
+            for(i in 1:length(cells)){
+                if(i < wins^2){
+                    # Compute a model!
+                    polyModel <- lm(tmpRD[['blc']][pulseLogic, cells[i]] ~ poly(pulseTime, degree))
+                    origCoef <- polyModel$coefficients
 
-                cols <- rainbow( n = 100)
-                for(j in 1:100){
-                    #coefSamp <- coefDfBpInfo[3,]
-                    coefSamp <- origCoef
-                    for(k in coefs){
-                        coefSamp[j] <- sample(
-                            seq(
-                            origCoef[k] - ( sdFactor*sd(coefDf[,k]) ), 
-                            origCoef[k] + ( sdFactor*sd(coefDf[,k]) ), 
-                            length.out = 100
-                            )
-                        )[1]
+                    par(mar = c(0,0,0,0), bg = "gray70", xaxt = 'n', yaxt = 'n')
+                    tryCatch({
+                        plot(
+                            pulseTime, 
+                            tmpRD[['blc']][pulseLogic, cells[i]], 
+                            pch=16, 
+                            cex=1.2, 
+                            xlab="time", 
+                            ylab="Response", 
+                            ylim = c(-0.5,1.3), 
+                            main = pulse, 
+                            col= "black",
+                            type = 'l',
+                            lwd = 2)
+                        
+                        samples = 50
+                        cols <- rainbow( n = samples)
+                        for(j in 1:samples){
+                            #coefSamp <- coefDfBpInfo[3,]
+                            coefSamp <- origCoef
+                            for(k in coefs){
+                                coefSamp[k] <- sample(
+                                    seq(
+                                    origCoef[k] - ( sdFactor*sd(coefDf[,k]) ), 
+                                    origCoef[k] + ( sdFactor*sd(coefDf[,k]) ), 
+                                    length.out = 100
+                                    )
+                                )[1]
+                            }
+
+                            polyModel$coefficients <- coefSamp
+                            polyModelPred <- predict(polyModel, newdata = targ)
+
+                            # Show the polymodal function
+                            lines(targ[,1], polyModelPred , col = cols[j], pch=16, cex=.8, lwd=1)
+                        }
+                        lines(
+                            pulseTime, 
+                            tmpRD[['blc']][pulseLogic, cells[i]], 
+                            cex=1.2, 
+                            col= "black",
+                            type = 'l',
+                            lwd = 2)
+                    }, error = function(e) NULL)
+                }
+            }
+        }
+
+        #   This can be very time consuming.
+        if(saveIt){
+            if(!parallel){
+                #For each cell create a random model output the specifed number of augsamps requested
+                augmentedFeaturesToAdd <- data.frame()
+                #colnames(newFeatures) <- seq(1, timeSteps)
+                #newFeatures <- data.frame()
+                #newFeatures1 <- foreach(i = 1:length(cells), .combine = rbind, .packages="foreach") %dopar% { 
+                for(i in 1:length(cells)){
+                    if(i%%50 == 0){
+                        cat("Currently on cell ", i, " of ", length(cells), " cells\n")
                     }
 
-                    polyModel$coefficients <- coefSamp
-                    polyModelPred <- predict(polyModel, newdata = targ)
+                    # Compute a model!
+                    polyModel <- lm(tmpRD[['blc']][pulseLogic, cells[i]] ~ poly(pulseTime, degree))
+                    origCoef <- polyModel$coefficients
+                    
+                    # Now perform my coefficient randomizer
+                    # Start with a augment sampler
+                    newFeatures <- data.frame()
+                    for(j in 1:augSamps){
+                    #polyModelPreds <- foreach(j = 1:augSamps, .combine = rbind, .packages="foreach") %do% {
+                        coefSamp <- origCoef
+                        #coefSamp <- foreach(k = coefs, .combine = c, .packages="foreach") %:% {
+                        for(k in coefs){
+                            coefSamp[k] <- sample(
+                                seq(
+                                origCoef[k] - ( sdFactor*sd(coefDf[,k]) ), 
+                                origCoef[k] + ( sdFactor*sd(coefDf[,k]) ), 
+                                length.out = 100
+                                )
+                            )[1]
+                        }
 
-                    # Show the polymodal function
-                    lines(targ[,1], polyModelPred , col = cols[i], pch=16, cex=.8, lwd=1)
+                        polyModel$coefficients <- coefSamp
+                        polyModelPred <- predict(polyModel, newdata = targ)
+                        newFeatures <- rbind(newFeatures, polyModelPred)
+                        colnames(newFeatures) <- seq(1, timeSteps)
+                    }
+                    augmentedFeaturesToAdd <- rbind(augmentedFeaturesToAdd, newFeatures)
                 }
-                lines(
-                    pulseTime, 
-                    tmpRD[['blc']][pulseLogic, cells[i]], 
-                    cex=1.2, 
-                    col= "black",
-                    type = 'l',
-                    lwd = 2)
-            }
-            
-            newFeatures <- data.frame()
-            for(j in 1:augSamps){
-            #polyModelPreds <- foreach(j = 1:augSamps, .combine = rbind, .packages="foreach") %do% {
-                coefSamp <- origCoef
-                #coefSamp <- foreach(k = coefs, .combine = c, .packages="foreach") %:% {
-                for(k in coefs){
-                    coefSamp[k] <- sample(
-                        seq(
-                        origCoef[k] - ( sdFactor*sd(coefDf[,k]) ), 
-                        origCoef[k] + ( sdFactor*sd(coefDf[,k]) ), 
-                        length.out = 100
-                        )
-                    )[1]
-                }
+                #newFeatures1
+                #str(newFeatures1)
+                augmentedFeatures <- rbind(augmentedFeatures, augmentedFeaturesToAdd)
+            }else{
+                #For each cell create a random model output the specifed number of augsamps requested
+                augmentedFeatures <- data.frame()
+                augmentedFeaturesToAdd <- foreach(i = 1:length(cells), .combine = rbind, .packages="foreach") %dopar% { 
+                    # Compute a model!
+                    polyModel <- lm(tmpRD[['blc']][pulseLogic, cells[i]] ~ poly(pulseTime, degree))
+                    origCoef <- polyModel$coefficients
+                    
+                    # Now perform my coefficient randomizer
+                    # Start with a augment sampler
+                    polyModelPreds <- foreach(j = 1:augSamps, .combine = rbind, .packages="foreach") %do% {
+                        coefSamp <- origCoef
+                        #coefSamp <- foreach(k = coefs, .combine = c, .packages="foreach") %:% {
+                        for(k in coefs){
+                            coefSamp[k] <- sample(
+                                seq(
+                                origCoef[k] - ( sdFactor*sd(coefDf[,k]) ), 
+                                origCoef[k] + ( sdFactor*sd(coefDf[,k]) ), 
+                                length.out = 100
+                                )
+                            )[1]
+                        }
 
-                polyModel$coefficients <- coefSamp
-                polyModelPred <- predict(polyModel, newdata = targ)
-                polyModelPred
-                newFeatures <- rbind(newFeatures, polyModelPred)
-                colnames(newFeatures) <- seq(1, timeSteps)
+                        polyModel$coefficients <- coefSamp
+                        polyModelPred <- predict(polyModel, newdata = targ)
+                        newFeatures <- rbind(newFeatures, polyModelPred)
+                        colnames(newFeatures) <- seq(1, timeSteps)
+                        newFeatures
+                    }
+                    augmentedFeaturesToAdd
+                }
+                augmentedFeatures <- rbind(augmentedFeatures, augmentedFeaturesToAdd)
             }
-            newFeatures
+            augmentedLabels <- rep(label, dim(augmentedFeatures)[1])
+            return(list(augmentedFeatures =augmentedFeatures, augmentedLabels = augmentedLabels))
         }
-        newFeatures1
-        #str(newFeatures1)
-        #augmentedFeatures <- rbind(augmentedFeatures, augmentedFeaturesToAdd)
     }
-    augmentedLabels <- rep(label, dim(augmentedFeatures)[1])
-    return(list(augmentedFeatures =augmentedFeatures, augmentedLabels = augmentedLabels))
 }
 
 levs <- setdiff(unique(tmpRD$w.dat$wr1),c("", "epad"))
 sum(colSums(tmpRD$bin[levs]) * 10)
-augmentedData <- responsePolyModelAugmentor(tmpRD, augSamps = 10 )
+augmentedData <- responsePolyModelAugmentor(tmpRD, sdFactor = 2, coefs = 2:4, augSamps = 10, plotit = T )
 
 dim(augmentedData[[1]])
 
