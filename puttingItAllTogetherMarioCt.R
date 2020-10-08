@@ -50,7 +50,7 @@ for( i in 1:length(labData) ){
 
 modelNames <- c('r3J','aitc', 'menth', 'caps', 'k40', 'gfp', 'ib4', 'image')
 predictedClasses <- list()
-INV
+
 # AMCK model
 for(i in 1:5){
     model <- invisible(keras::load_model_hdf5(models[i]))

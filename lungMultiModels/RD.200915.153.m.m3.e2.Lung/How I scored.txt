@@ -1,0 +1,4 @@
+All responses scored, including for drops
+Cells That do not respond at all were marked as drops
+Cells that are washed off the plate were marked as drops 
+Cells within a large cluster are marked as drops

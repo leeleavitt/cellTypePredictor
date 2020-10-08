@@ -235,9 +235,14 @@ labelChecker <- function(dat, cells = goodCells, windowSizeMin = 3, tType = "t.d
 # rdName = rd_Name
 # model = "./VRC.h5"
 # winSel = T
-labelBinder <- function(dat, windowSizeMin = 3, tType = "t.dat", winMin = 1.2, winMax = 5, model = "./VRC.h5", winSel = T, featureWindows = 24){
+# window will allow a user to enter a window to add
+
+labelBinder <- function(dat, windowSizeMin = 3, tType = "t.dat", winMin = 1.2, winMax = 5, model = "./VRC.h5", winSel = T, featureWindows = 24, window = NA){
     keras <- reticulate::import('keras')
-    model <- keras::load_model_hdf5(model)
+    
+    if(all(class(model) == 'character')){
+        model <- keras::load_model_hdf5(model)
+    }
     pyPharm <- reticulate::import('python_pharmer')
 
     # Lets create the window region
@@ -257,7 +262,11 @@ labelBinder <- function(dat, windowSizeMin = 3, tType = "t.dat", winMin = 1.2, w
         cat('\nSelect windows to add to the labeled data\n')
         winCol <- select.list(levs, preselect = winCol,  multiple = T, title = "Select windows", graphics = T)
     }else{
-        winCol <- levs
+        if(is.na(window)){
+            winCol <- grep(window, levs, T, value = T)
+        }else{
+            winCol <- levs
+        }
     }
     winStart <- sort(x1s[winCol])
     winEnd <- winStart + windowSizeMin

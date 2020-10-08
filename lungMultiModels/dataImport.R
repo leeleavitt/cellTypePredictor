@@ -173,7 +173,7 @@ write.csv(totalLabelData, "labels.csv")
 #' @param wins square root of the number of traces to observe if plotit = t
 #' @param plotit logical, if true then wins^2 will be plotted to allow you to observe this
 
-responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 1, augSamps = 100, degree = 20, sdFactor = 1.8, coefs = 2:15, wins = 7, plotit = F){
+responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 1, augSamps = 100, degree = 20, sdFactor = 1.8, coefs = 2:8, wins = 7, plotit = F){
 
     numCores <- parallel::detectCores()
     doParallel::registerDoParallel(numCores)
@@ -235,7 +235,10 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
 
         #For each cell create a random model output the specifed number of augsamps requested
         #augmentedFeaturesToAdd <- 
-        foreach(i = 1:length(cells), .combine = rbind, .packages="foreach") %dopar% { 
+        #newFeatures <- data.frame()
+        #colnames(newFeatures) <- seq(1, timeSteps)
+        #newFeatures <- data.frame()
+        newFeatures1 <- foreach(i = 1:length(cells), .combine = rbind, .packages="foreach") %dopar% { 
         #for(i in 1:length(cells)){
             # if(i%%50 == 0){
             #     cat("Currently on cell ", i, " of ", length(cells), " cells\n")
@@ -289,9 +292,8 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
             
             newFeatures <- data.frame()
             for(j in 1:augSamps){
-            #polyModelPreds <- foreach(j = 1:augSamps, .combine = rbind, .packages="foreach") %:% {
+            #polyModelPreds <- foreach(j = 1:augSamps, .combine = rbind, .packages="foreach") %do% {
                 coefSamp <- origCoef
-                
                 #coefSamp <- foreach(k = coefs, .combine = c, .packages="foreach") %:% {
                 for(k in coefs){
                     coefSamp[k] <- sample(
@@ -305,21 +307,28 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
 
                 polyModel$coefficients <- coefSamp
                 polyModelPred <- predict(polyModel, newdata = targ)
-                #polyModelPred
-                augmentedFeatures <- rbind(augmentedFeatures,polyModelPred)
+                polyModelPred
+                newFeatures <- rbind(newFeatures, polyModelPred)
+                colnames(newFeatures) <- seq(1, timeSteps)
             }
-            str(polyModelPreds)
-            head(polyModelPreds)
-
+            newFeatures
         }
-        print(str(augmentedFeatures))
+        newFeatures1
+        #str(newFeatures1)
         #augmentedFeatures <- rbind(augmentedFeatures, augmentedFeaturesToAdd)
     }
     augmentedLabels <- rep(label, dim(augmentedFeatures)[1])
     return(list(augmentedFeatures =augmentedFeatures, augmentedLabels = augmentedLabels))
 }
 
-augmentedData <- responsePolyModelAugmentor(tmpRD, levs[1])
+levs <- setdiff(unique(tmpRD$w.dat$wr1),c("", "epad"))
+sum(colSums(tmpRD$bin[levs]) * 10)
+augmentedData <- responsePolyModelAugmentor(tmpRD, augSamps = 10 )
+
+dim(augmentedData[[1]])
+
+
+sum(colSums(tmpRD$bin[1:7]))* 100
 #To Augment this data, we ill now 
 # 1 calcuate the distribution of coefficient values across all 1 responses
 # 2 For each cell perform an initial fit,

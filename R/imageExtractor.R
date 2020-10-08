@@ -12,7 +12,8 @@ channel = c(1,2,3)
 #' @param image this is the name of the image taken from the RD.experiment
 #' @param channel this is the rgb color channel to collect can be a single numeric value, or a vector of numeric intergers ex. c(1,2,3)
 #' @param na.rm logical. If this is TRUE values defined as NA will be removed, if FALSE the values are changed to be zero.
-imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = 'img3', channel = 1, na.rm = T){
+#' @param csvExport boolean, if true then a csv will be output to the current working directory, if false the object will be returned.
+imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = 'img3', channel = 1, na.rm = T, csvExport = T){
     #slice is the size of the range plus 1
     slice <- (range * 2) + 1
     # First make our main array to fill stuff in wiht
@@ -84,40 +85,44 @@ imageExtractor <- function(experiments, range = 20, label = 'cy5.bin', image = '
     dims <- dim(mainImageArray)
     dim(mainImageArrayReshape) <- c(prod(dims[1:4]))
 
-    numpyName <- paste0(
-        dim(mainImageArray)[1],
-        '_',
-        slice,
-        '_',
-        slice,
-        '_',
-        length(channel),
-        '_',
-        paste0(label, collapse = '_'),
-        '.npy'
-    )
+    if(csvExport){
+        numpyName <- paste0(
+            dim(mainImageArray)[1],
+            '_',
+            slice,
+            '_',
+            slice,
+            '_',
+            length(channel),
+            '_',
+            paste0(label, collapse = '_'),
+            '.npy'
+        )
 
-    csvName <- paste0(
-        paste0(label, collapse = '_'),
-        '_',
-        dim(mainImageArray)[1],
-        '_',
-        'label',
-        '.csv'
-    )
+        csvName <- paste0(
+            paste0(label, collapse = '_'),
+            '_',
+            dim(mainImageArray)[1],
+            '_',
+            'label',
+            '.csv'
+        )
 
-    newDir <- paste0('./trainingData/',paste0(label, collapse = '_'),'_', image,'_', paste(channel, collapse='')) 
-    invisible(dir.create(newDir, FALSE))
+        newDir <- paste0('./trainingData/',paste0(label, collapse = '_'),'_', image,'_', paste(channel, collapse='')) 
+        invisible(dir.create(newDir, FALSE))
 
-    invisible(RcppCNPy::npySave(
-        paste0(newDir,'/', numpyName), 
-        mainImageArrayReshape
-    ))
-    write.csv(
-        mainLabelArray, 
-        file = paste0(newDir,'/', csvName)
-    )
+        invisible(RcppCNPy::npySave(
+            paste0(newDir,'/', numpyName), 
+            mainImageArrayReshape
+        ))
+        write.csv(
+            mainLabelArray, 
+            file = paste0(newDir,'/', csvName)
+        )
+    }else{
+        return(mainImageArrayReshape)
 
+    }
     cat("\nCompleted making the numpy array and labels")
     cat("\nTotal examples: ", dim(mainImageArray)[1],'\n')
 }
