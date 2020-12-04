@@ -8,9 +8,6 @@ expLocs <- list.files(pattern = "RD[.].*Rdata$", recursive = T)
 # With these exerpiments luke scored we have to create a function that 
 # Collects all cells and all responses.
 
-tmpRD <- get(load(expLocs[1]))
-graphics.off()
-
 #################################################################
 #
 #' @param tmpRD  rd.experiment
@@ -24,7 +21,6 @@ graphics.off()
 #' @param coefs The coefficients to randomize during augmentation. Increasing this usually results in noisier data
 #' @param wins square root of the number of traces to observe if plotit = t
 #' @param plotit logical, if true then wins^2 will be plotted to allow you to observe this
-
 responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 1, augSamps = 100, degree = 20, sdFactor = 1.8, coefs = 2:8, wins = 7, parallel = T, plotit = T, saveIt = T){
 
     numCores <- parallel::detectCores()
@@ -221,17 +217,20 @@ responsePolyModelAugmentor<- function(tmpRD, levs = NA, windowSize = 4, label = 
     }
 }
 
-rbind(data.frame(seq(1,10)), data.frame(seq(1:20)), )
 
 allAugmentedFeatures <- data.frame()
-allAugmentedLabels <- dataFrame()
-for(i in 1:expLocs){
-    tmpRD <- get(load(expLocs[1]))
-    augmentedData <- responsePolyModelAugmentor(tmpRD, sdFactor = 2, coefs = 2:6, augSamps = 10, plotit = T, parallel = F)
+allAugmentedLabels <- c()
+for(i in 1:length(expLocs)){
+    tmpRD <- get(load(expLocs[i]))
+    augmentedData <- responsePolyModelAugmentor(tmpRD, sdFactor = 1.1, coefs = 2:8, augSamps = 5, plotit = F, parallel = F)
     
     allAugmentedFeatures <- rbind(allAugmentedFeatures, augmentedData$augmentedFeatures)
     allAugmentedLabels <- c(allAugmentedLabels, augmentedData$augmentedLabels)
 }
+
+write.csv(allAugmentedFeatures, "augfeatures.csv")
+write.csv(allAugmentedLabels, "auglabels.csv")
+
 
 
 #######################

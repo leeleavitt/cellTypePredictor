@@ -59,55 +59,58 @@ trainSmallFeatures = features[smallLogic][(testAmount+1):, ...]
 trainLargeLabels = labels[largeLogic][(testAmount+1):]
 trainLargeFeatures = features[largeLogic][(testAmount+1):, ...]
 
-# Undersample the large labels
-trainLargeShrink = int(trainLargeLabels.shape[0] * .5)
-trainLargeLabels = trainLargeLabels[:trainLargeShrink]
-trainLargeFeatures = trainLargeFeatures[:trainLargeShrink]
+# # Undersample the large labels
+# trainLargeShrink = int(trainLargeLabels.shape[0] * .5)
+# trainLargeLabels = trainLargeLabels[:trainLargeShrink]
+# trainLargeFeatures = trainLargeFeatures[:trainLargeShrink]
 
 # Now i will oversample the data for the smaller logic
-#Oversample the small features
-trainFeatures = np.concatenate((trainSmallFeatures, trainSmallFeatures, trainLargeFeatures))
-trainLabels = np.concatenate((trainSmallLabels, trainSmallLabels, trainLargeLabels))
+# #Oversample the small features
+# trainFeatures = np.concatenate((trainSmallFeatures, trainSmallFeatures, trainLargeFeatures))
+# trainLabels = np.concatenate((trainSmallLabels, trainSmallLabels, trainLargeLabels))
+
+trainFeatures = np.concatenate((trainSmallFeatures, trainLargeFeatures))
+trainLabels = np.concatenate((trainSmallLabels, trainLargeLabels))
 trainShuff = np.random.permutation(trainFeatures.shape[0])
 
 trainFeatures = trainFeatures[trainShuff, ...]
 trainLabels = trainLabels[trainShuff, ...]
 
 
-# ## Augmented data
-# # Add the augmented data to the train data
-# # Load the augmented data
-# augTraceFileName = "./augfeatures.csv"
-# augLabelFileName = "./auglabels.csv"
+## Augmented data
+# Add the augmented data to the train data
+# Load the augmented data
+augTraceFileName = "./augfeatures.csv"
+augLabelFileName = "./auglabels.csv"
 
-# # Load augmented data
-# traces = pd.read_csv(augTraceFileName, index_col=0)
-# tracesIndex = np.random.permutation(len(traces.index))
-# traces = traces.iloc[tracesIndex,]
-# tracesNp = np.asarray(traces)
-# augTracesFeature = featureMaker2(tracesNp, featureWindows)
+# Load augmented data
+traces = pd.read_csv(augTraceFileName, index_col=0)
+tracesIndex = np.random.permutation(len(traces.index))
+traces = traces.iloc[tracesIndex,]
+tracesNp = np.asarray(traces)
+augTracesFeature = featureMaker2(tracesNp, featureWindows)
 
-# # Prepare the labels
-# labels = pd.read_csv(augLabelFileName, index_col=0)
-# labels = labels.iloc[tracesIndex,]
-# labels = labels.iloc[:,0].astype('category')
-# augLabels = np.asarray(labels)
+# Prepare the labels
+labels = pd.read_csv(augLabelFileName, index_col=0)
+labels = labels.iloc[tracesIndex,]
+labels = labels.iloc[:,0].astype('category')
+augLabels = np.asarray(labels)
 
-# # now add the new data
-# x_train  = np.concatenate((augTracesFeature, x_train))
-# y_train = np.concatenate((augLabels, y_train))
+# now add the new data
+trainFeatures  = np.concatenate((augTracesFeature, trainFeatures))
+trainLabels = np.concatenate((augLabels, trainLabels))
 
-# # mix it up
-# randOrder = np.random.permutation(x_train.shape[0])
-# x_train = x_train[randOrder,...]
-# y_train = y_train[randOrder,...]
+# mix it up
+randOrder = np.random.permutation(trainFeatures.shape[0])
+trainFeatures = trainFeatures[randOrder,...]
+trainLabels = trainLabels[randOrder,...]
 
 
 # Now DO what we need for the import to LSTM
 BATCH_SIZE = 100
 BUFFER_SIZE = 1000
-LSTMINPUT = x_train.shape[1]
-LSTMOUTPUT = len(set(y_train))
+LSTMINPUT = trainFeatures.shape[1]
+LSTMOUTPUT = len(set(trainLabels))
 train = tf.data.Dataset.from_tensor_slices((trainFeatures, trainLabels))
 train = train.shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
 
@@ -119,7 +122,7 @@ model.add(LSTM(
         32,
         # dropout = 0.4,
         # recurrent_dropout=0.4
-        input_shape = tracesFeature.shape[1:]
+        input_shape = trainFeatures.shape[1:]
         ))
 model.add(Dense(LSTMOUTPUT, activation='softmax'))
 
@@ -144,3 +147,32 @@ print("This is the loss vs Accuracy for" + '.')
 py.main.plot_train_history(history, modelName)     
 
 model.save('./'+ modelName + '.h5')
+
+
+
+
+##########################################################
+#Now that we have a model that works fairly well 
+#lets do some data analysis
+
+#These are Predicted Values
+labsPred = model.predict_classes(features)
+labsPred = pd.DataFrame(labsPred) #convert to df
+
+#convert real to DataFrame
+labs = pd.DataFrame(labels)
+
+realTest = pd.concat([labs, labsPred], axis=1)
+
+realTest.columns = ['Real', "Predicted"]
+
+realTest = realTest.set_index(tracesIndex)
+
+#These are Predicted Values
+realVsPredCT = pd.crosstab(np.asarray(labsPred).flatten(), np.asarray(labs).flatten(), rownames=['pred'], colnames=['real'])
+
+print(realVsPredCT)
+
+
+
+
